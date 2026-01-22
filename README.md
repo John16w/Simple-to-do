@@ -1,5 +1,8 @@
 # Simple-to-do
-This is a pretty basic to-do list site i made mostly because i felt like it.
+This is a pretty basic to-do list site i made mostly because i felt like it. Some Ai was used to make this mostly to organize code
 
 
-(Some Ai was used to make this mostly to organize code)
+Backgrounds: unsplash.com
+
+
+Favicon: flaticon.com
