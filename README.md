@@ -2,7 +2,7 @@
 This is a pretty basic to-do list site i made mostly because i felt like it. Some Ai was used to make this mostly to organize code
 
 
-Backgrounds: unsplash.com
+Backgrounds: https://www.unsplash.com
 
 
-Favicon: flaticon.com
+Favicon: https://www.flaticon.com
