@@ -1,0 +1,84 @@
+{
+  "light": {
+    "bg": "#ffffff",
+    "fg": "#1a1a1a",
+    "subtle": "#f8f8f8",
+    "border": "#eeeeee",
+    "accent": "#888888",
+    "itemHover": "#fafafa",
+    "wallpaper": "none"
+  },
+  "dark": {
+    "bg": "#0a0a0a",
+    "fg": "#eeeeee",
+    "subtle": "#141414",
+    "border": "#222222",
+    "accent": "#666666",
+    "itemHover": "#111111",
+    "wallpaper": "none"
+  },
+  "midnightSun": {
+    "bg": "#0f172a",
+    "fg": "#f1f5f9",
+    "subtle": "rgba(30, 41, 59, 0.7)",
+    "border": "rgba(255,255,255,0.1)",
+    "accent": "#94a3b8",
+    "itemHover": "rgba(255,255,255,0.05)",
+    "wallpaper": "linear-gradient(rgba(15,23,42,0.8), rgba(15,23,42,0.8)), url('/images/midnightsun-bg.jpg')"
+  },
+  "forest": {
+    "bg": "#1a1c1a",
+    "fg": "#d1d5d1",
+    "subtle": "#242924",
+    "border": "#2f352f",
+    "accent": "#868e86",
+    "itemHover": "#1f231f",
+    "wallpaper": "linear-gradient(rgba(26,28,26,0.7), rgba(26,28,26,0.7)), url('/images/forest-bg.jpg')"
+  },
+  "aurora": {
+    "bg": "#020617",
+    "fg": "#e5f0ff",
+    "subtle": "rgba(15,23,42,0.65)",
+    "border": "rgba(255,255,255,0.12)",
+    "accent": "#7dd3fc",
+    "itemHover": "rgba(255,255,255,0.06)",
+    "wallpaper": "linear-gradient(rgba(2,6,23,0.75), rgba(2,6,23,0.75)), url('/images/aurora-bg.jpg')"
+  },
+  "desertDawn": {
+    "bg": "#2a1f16",
+    "fg": "#f4e9dd",
+    "subtle": "#3a2a1d",
+    "border": "#4b3625",
+    "accent": "#f0b27a",
+    "itemHover": "#332418",
+    "wallpaper": "linear-gradient(rgba(42,31,22,0.75), rgba(42,31,22,0.75)), url('/images/desertdawn-bg.jpg')"
+  },
+  "oceanMist": {
+    "bg": "#071a1f",
+    "fg": "#d9f3f7",
+    "subtle": "#0e2a31",
+    "border": "#153b44",
+    "accent": "#4dd0e1",
+    "itemHover": "#0b2228",
+    "wallpaper": "linear-gradient(rgba(7,26,31,0.7), rgba(7,26,31,0.7)), url('/images/oceanmist-bg.jpg')"
+  },
+  "neonNight": {
+    "bg": "#0a0014",
+    "fg": "#f9f7ff",
+    "subtle": "#150020",
+    "border": "#2a003d",
+    "accent": "#ff4fd8",
+    "itemHover": "#11001a",
+    "wallpaper": "linear-gradient(rgba(10,0,20,0.85), rgba(10,0,20,0.85)), url('/images/neonnight-bg.jpg')"
+  },
+  "nord": {
+  "bg": "#2e3440",
+  "fg": "#d8dee9",
+  "subtle": "#3b4252",
+  "border": "#4c566a",
+  "accent": "#88c0d0",
+  "itemHover": "#434c5e",
+  "wallpaper": "linear-gradient(rgba(46,52,64,0.85), rgba(46,52,64,0.85)), url('/images/nord-bg.jpg')"
+}
+
+}

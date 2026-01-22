@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal To-Do</title>
+    <style>
+        @font-face {
+            font-family: 'Inter';
+            src: url('/fonts/Inter-Medium.woff2') format('woff2');
+            font-weight: 100 900;
+        }
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('PlayfairDisplay.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Roboto';
+            src: url('/fonts/Roboto-medium.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'JetBrains Mono';
+            src: url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+        }
+
+        :root {
+            --bg: #ffffff;
+            --fg: #1a1a1a;
+            --subtle: #f8f8f8;
+            --border: #eeeeee;
+            --accent: #888888;
+            --input-focus: #000000;
+            --item-hover: #fafafa;
+            --bg-image: none;
+            --base-font: 'Inter', sans-serif;
+            --ui-scale: 1;
+            --text-scale: 1.15;
+            --radius: 4px;
+        }
+
+        .no-transition * { transition: none !important; }
+        * { box-sizing: border-box; transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease; }
+        html { font-size: calc(16px * var(--ui-scale)); }
+
+        body {
+            margin: 0;
+            background-color: var(--bg);
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--fg);
+            font-family: var(--base-font);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .todo-container { 
+            width: 90%; 
+            max-width: 34rem; 
+            padding-top: 8vh;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tabs-wrapper {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex-grow: 1;
+        }
+        .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+        .tab {
+            padding: 0.8rem 0;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            opacity: 0.35;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tab.active { opacity: 1; border-bottom: 2px solid var(--fg); }
+        .tab-close { font-size: 1.1rem; opacity: 0.3; line-height: 0; margin-top: -1px; }
+        .tab-close:hover { color: #ff4444; opacity: 1; }
+
+        .add-tab-btn { font-size: 1.8rem; cursor: pointer; opacity: 0.3; line-height: 0.5; padding-bottom: 10px; }
+        .add-tab-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .input-area { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+        .todo-input {
+            width: 100%;
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+            background: var(--subtle);
+            color: var(--fg);
+            font-family: inherit;
+            font-size: calc(1.1rem * var(--text-scale));
+            font-weight: 400;
+            outline: none;
+            border-radius: var(--radius);
+        }
+        .todo-input:focus { border-color: var(--fg); background: var(--bg); }
+
+        .meta-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .field-label { font-size: 0.6rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; opacity: 0.4; margin-bottom: 0.5rem; display: block; }
+        .meta-inputs input {
+            width: 100%; 
+            padding: 0.9rem; 
+            border: 1px solid var(--border);
+            background: var(--subtle); 
+            color: var(--fg); 
+            font-family: inherit;
+            font-size: 0.85rem; 
+            outline: none;
+            border-radius: var(--radius);
+        }
+        .meta-inputs input:focus { border-color: var(--fg); background: var(--bg); }
+
+        #todo-list { overflow-y: auto; flex-grow: 1; padding-bottom: 120px; }
+        .todo-item { 
+            display: flex; align-items: center; padding: 1.1rem 0.6rem; 
+            border-bottom: 1px solid var(--border); justify-content: space-between;
+            border-radius: var(--radius);
+        }
+        .todo-item:hover { background: var(--item-hover); }
+        .todo-content { display: flex; align-items: center; gap: 1.4rem; flex-grow: 1; cursor: pointer; }
+        .checkbox-container { display: flex; align-items: center; justify-content: center; min-width: 1.2rem; }
+        .todo-item input[type="checkbox"] { width: 1.2rem; height: 1.2rem; cursor: pointer; accent-color: var(--fg); margin: 0; }
+        .text-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        .todo-text { line-height: 1.4; font-size: calc(1rem * var(--text-scale)); font-weight: 400; }
+        .todo-meta-display { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+
+        #settings-trigger {
+            position: fixed; bottom: 2rem; left: 2rem;
+            background: var(--bg); border: 1px solid var(--border);
+            color: var(--fg); padding: 0.8rem 1.4rem; font-size: 0.65rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer;
+            z-index: 999; border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .settings-menu {
+            position: fixed; top: 0; left: -360px; width: 340px; height: 100vh;
+            background: var(--bg); border-right: 1px solid var(--border);
+            padding: 3rem 2.5rem; transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000; display: flex; flex-direction: column;
+        }
+        .settings-menu.open { left: 0; box-shadow: 20px 0 60px rgba(0,0,0,0.1); }
+        .settings-content { flex-grow: 1; display: flex; flex-direction: column; gap: 2.5rem; }
+        .setting-group { display: flex; flex-direction: column; }
+        .setting-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.1em; opacity: 0.5; margin-bottom: 1rem; }
+
+        select {
+            width: 100%; background: var(--subtle); color: var(--fg);
+            border: 1px solid var(--border); padding: 1rem; outline: none;
+            font-family: inherit; font-size: 0.8rem; border-radius: var(--radius);
+        }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 2px; background: var(--border); margin: 1.2rem 0; cursor: pointer; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: var(--fg); border-radius: 50%; }
+
+        .settings-footer { padding-top: 2rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 1rem; }
+        .btn-action {
+            background: var(--fg); color: var(--bg); border: none;
+            padding: 1.1rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.1em; cursor: pointer; width: 100%; border-radius: var(--radius);
+        }
+        .btn-reset { background: transparent; border: 1px solid #ff4444; color: #ff4444; }
+        .btn-reset:hover { background: #ff4444; color: white; }
+        .close-area { align-self: flex-end; cursor: pointer; font-size: 0.7rem; font-weight: 700; opacity: 0.3; margin-bottom: 2.5rem; }
+
+        .remove-btn {
+            background: none; border: none; color: var(--fg); cursor: pointer;
+            opacity: 0; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; padding: 0.6rem;
+        }
+        .todo-item:hover .remove-btn { opacity: 0.4; }
+        .remove-btn:hover { opacity: 1 !important; color: #ff4444; }
+    </style>
+</head>
+<body class="no-transition">
+    <script>
+        (function() {
+            const savedPrefs = localStorage.getItem('min_todo_prefs');
+            if (savedPrefs) {
+                const config = JSON.parse(savedPrefs);
+                const THEMES = {
+                    light: { bg: "#ffffff", fg: "#1a1a1a", subtle: "#f8f8f8", border: "#eeeeee", accent: "#888888", itemHover: "#fafafa", wallpaper: "none" },
+                    dark: { bg: "#0a0a0a", fg: "#eeeeee", subtle: "#141414", border: "#222222", accent: "#666666", itemHover: "#111111", wallpaper: "none" }
+                };
+                const t = THEMES[config.theme] || THEMES.light;
+                const root = document.documentElement;
+                root.style.setProperty('--bg', t.bg);
+                root.style.setProperty('--fg', t.fg);
+                root.style.setProperty('--subtle', t.subtle);
+                root.style.setProperty('--border', t.border);
+                root.style.setProperty('--accent', t.accent);
+                root.style.setProperty('--bg-image', t.wallpaper);
+                root.style.setProperty('--base-font', config.font);
+                root.style.setProperty('--ui-scale', config.scale / 100);
+            }
+        })();
+    </script>
+
+    <div class="todo-container">
+        <div class="header-nav">
+            <div class="tabs-wrapper" id="tabs-container"></div>
+            <div id="add-list-trigger" class="add-tab-btn">+</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="new-todo" class="todo-input task-input-field" placeholder="What needs to be done?">
+            <div class="meta-inputs">
+                <div>
+                    <label class="field-label">Due Date</label>
+                    <input type="date" id="todo-date" class="task-input-field">
+                </div>
+                <div>
+                    <label class="field-label">Set Time</label>
+                    <input type="time" id="todo-time" class="task-input-field">
+                </div>
+            </div>
+        </div>
+        <div id="todo-list"></div>
+    </div>
+
+    <button id="settings-trigger">Preferences</button>
+
+    <div id="settings-menu" class="settings-menu">
+        <div class="close-area" id="close-menu">CLOSE ✕</div>
+        <div class="settings-content">
+            <h2 style="font-weight: 600; font-size: 1.3rem; margin: 0;">Settings</h2>
+            <div class="setting-group">
+                <label class="setting-label">Theme</label>
+                <select id="theme-selector"></select>
+            </div>
+            <div class="setting-group">
+                <label class="setting-label">Typography</label>
+                <select id="font-family">
+                    <option value="'Inter', sans-serif">Inter</option>
+                    <option value="'Playfair Display', serif">Playfair Display</option>
+                    <option value="'Roboto', serif">Roboto</option>
+                    <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                    <option value="system-ui, sans-serif">System Default</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label class="setting-label">Interface Scale</label>
+                <input type="range" id="ui-scale" min="70" max="130" step="1" value="100">
+            </div>
+            <div class="setting-group">
+                <label class="setting-label">Content Size</label>
+                <input type="range" id="text-scale" min="0.8" max="1.5" step="0.01" value="1.15">
+            </div>
+        </div>
+        <div class="settings-footer">
+            <button class="btn-action btn-reset" id="reset-prefs">Reset All Settings</button>
+        </div>
+    </div>
+
+    <script>
+// --- Configuration & State ---
+const DEFAULTS = { 
+    font: "'Inter', sans-serif", 
+    scale: 100, 
+    textScale: 1.15, 
+    theme: "light" 
+};
+
+let THEMES = {}; // Will be populated by themes.json
+let config = JSON.parse(localStorage.getItem('min_todo_prefs')) || {...DEFAULTS};
+let lists = JSON.parse(localStorage.getItem('min_todo_data')) || { 'My Tasks': [] };
+let activeList = Object.keys(lists)[0];
+
+const elements = {
+    menu: document.getElementById('settings-menu'),
+    todoList: document.getElementById('todo-list'),
+    todoInput: document.getElementById('new-todo'),
+    tabs: document.getElementById('tabs-container'),
+    inputFields: document.querySelectorAll('.task-input-field'),
+    themeSelector: document.getElementById('theme-selector'),
+    fontSelector: document.getElementById('font-family'),
+    uiScale: document.getElementById('ui-scale'),
+    textScale: document.getElementById('text-scale')
+};
+
+// --- Initialization & Theme Loading ---
+async function initApp() {
+    try {
+        // Fetch the external JSON file
+        const response = await fetch('themes.json');
+        if (!response.ok) throw new Error('Failed to load themes.json');
+        
+        THEMES = await response.json();
+        
+        // Setup UI
+        populateThemes();
+        updateUI();
+        
+        // Remove the transition blocker once styles are applied
+        setTimeout(() => document.body.classList.remove('no-transition'), 100);
+    } catch (error) {
+        console.error("Initialization error:", error);
+        // Fallback if file is missing or server isn't running
+        THEMES = { light: { bg: "#ffffff", fg: "#1a1a1a", border: "#eeeeee" } };
+        populateThemes();
+        updateUI();
+    }
+}
+
+function populateThemes() {
+    elements.themeSelector.innerHTML = '';
+    Object.keys(THEMES).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        // Formats camelCase keys to "Title Case" for the dropdown
+        opt.innerText = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        elements.themeSelector.appendChild(opt);
+    });
+    elements.themeSelector.value = config.theme;
+}
+
+// --- Style Application ---
+function applyStyles() {
+    const t = THEMES[config.theme] || THEMES.light || {};
+    const root = document.documentElement;
+    
+    // Map JSON values to CSS Variables
+    if (t.bg) root.style.setProperty('--bg', t.bg);
+    if (t.fg) root.style.setProperty('--fg', t.fg);
+    if (t.subtle) root.style.setProperty('--subtle', t.subtle);
+    if (t.border) root.style.setProperty('--border', t.border);
+    if (t.accent) root.style.setProperty('--accent', t.accent);
+    if (t.itemHover) root.style.setProperty('--item-hover', t.itemHover);
+    if (t.wallpaper) root.style.setProperty('--bg-image', t.wallpaper);
+    
+    root.style.setProperty('--base-font', config.font);
+    root.style.setProperty('--ui-scale', config.scale / 100);
+    root.style.setProperty('--text-scale', config.textScale);
+
+    // Sync Settings Menu UI
+    elements.fontSelector.value = config.font;
+    elements.uiScale.value = config.scale;
+    elements.textScale.value = config.textScale;
+    elements.themeSelector.value = config.theme;
+}
+
+// --- Task & Tab Rendering ---
+function renderTasks() {
+    elements.todoList.innerHTML = '';
+    const currentTasks = lists[activeList] || [];
+    
+    currentTasks.forEach((task, index) => {
+        const item = document.createElement('div');
+        item.className = 'todo-item';
+        item.innerHTML = `
+            <div class="todo-content">
+                <div class="checkbox-container">
+                    <input type="checkbox" ${task.done ? 'checked' : ''}>
+                </div>
+                <div class="text-wrapper">
+                    <span class="todo-text" style="${task.done ? 'text-decoration: line-through; opacity: 0.3' : ''}">${task.text}</span>
+                    ${(task.date || task.time) ? `<div class="todo-meta-display">${task.date || ''} ${task.time || ''}</div>` : ''}
+                </div>
+            </div>
+            <button class="remove-btn">Remove</button>
+        `;
+        
+        const cb = item.querySelector('input');
+        item.querySelector('.todo-content').onclick = (e) => {
+            if(e.target !== cb) cb.checked = !cb.checked;
+            lists[activeList][index].done = cb.checked;
+            saveData(); 
+            renderTasks();
+        };
+        
+        item.querySelector('.remove-btn').onclick = (e) => {
+            e.stopPropagation();
+            lists[activeList].splice(index, 1);
+            saveData(); 
+            renderTasks();
+        };
+        
+        elements.todoList.appendChild(item);
+    });
+}
+
+function renderTabs() {
+    elements.tabs.innerHTML = '';
+    Object.keys(lists).forEach(name => {
+        const tab = document.createElement('div');
+        tab.className = `tab ${name === activeList ? 'active' : ''}`;
+        tab.innerHTML = `<span>${name}</span> <span class="tab-close">×</span>`;
+        
+        tab.onclick = () => { 
+            activeList = name; 
+            updateUI(); 
+        };
+        
+        tab.querySelector('.tab-close').onclick = (e) => {
+            e.stopPropagation();
+            if (Object.keys(lists).length > 1) {
+                delete lists[name];
+                activeList = Object.keys(lists)[0];
+                saveData(); 
+                updateUI();
+            }
+        };
+        elements.tabs.appendChild(tab);
+    });
+}
+
+// --- Logic & Events ---
+function createNewTask() {
+    const text = elements.todoInput.value.trim();
+    if (text) {
+        lists[activeList].push({
+            text: text,
+            date: document.getElementById('todo-date').value,
+            time: document.getElementById('todo-time').value,
+            done: false
+        });
+        elements.todoInput.value = '';
+        document.getElementById('todo-date').value = '';
+        document.getElementById('todo-time').value = '';
+        saveData(); 
+        renderTasks();
+        elements.todoInput.focus();
+    }
+}
+
+function updateUI() {
+    applyStyles();
+    localStorage.setItem('min_todo_prefs', JSON.stringify(config));
+    renderTabs();
+    renderTasks();
+}
+
+function saveData() { 
+    localStorage.setItem('min_todo_data', JSON.stringify(lists)); 
+}
+
+// Event Listeners
+elements.inputFields.forEach(field => {
+    field.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') createNewTask();
+    });
+});
+
+document.getElementById('add-list-trigger').onclick = () => {
+    const n = prompt('List Name:');
+    if (n && !lists[n]) { 
+        lists[n] = []; 
+        activeList = n; 
+        saveData(); 
+        updateUI(); 
+    }
+};
+
+elements.uiScale.oninput = (e) => { config.scale = e.target.value; applyStyles(); };
+elements.textScale.oninput = (e) => { config.textScale = e.target.value; applyStyles(); };
+elements.uiScale.onchange = () => localStorage.setItem('min_todo_prefs', JSON.stringify(config));
+elements.textScale.onchange = () => localStorage.setItem('min_todo_prefs', JSON.stringify(config));
+
+elements.themeSelector.onchange = (e) => { 
+    config.theme = e.target.value; 
+    updateUI(); 
+};
+
+document.getElementById('reset-prefs').onclick = () => { 
+    config = {...DEFAULTS}; 
+    updateUI(); 
+};
+
+elements.fontSelector.onchange = (e) => { 
+    config.font = e.target.value; 
+    updateUI(); 
+};
+
+document.getElementById('settings-trigger').onclick = () => elements.menu.classList.add('open');
+document.getElementById('close-menu').onclick = () => elements.menu.classList.remove('open');
+
+// Start the app
+initApp();
+    </script>
+</body>
+</html>
